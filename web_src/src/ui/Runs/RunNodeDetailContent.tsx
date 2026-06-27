@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import type {
   CanvasesCanvasNodeExecution,
   CanvasesCanvasRun,
@@ -8,6 +9,8 @@ import { RunNodeDetailHeader } from "./RunNodeDetailHeader";
 import { RunNodeDetailTabSection } from "./RunNodeDetailTabSection";
 import { useRunNodeDetailEscape, useRunNodeDetailTabs } from "./useRunNodeDetailTabs";
 import { useRunNodeDetailPresentation } from "./useRunNodeDetailPresentation";
+import { useRunNodeDetailKeyboardShortcuts } from "./useRunNodeDetailKeyboardShortcuts";
+import { RunNodeDetailKeyboardHelpDialog } from "./RunNodeDetailKeyboardHelpDialog";
 
 export interface RunNodeDetailContentProps {
   run: CanvasesCanvasRun;
@@ -34,44 +37,56 @@ export function RunNodeDetailContent({
 }: RunNodeDetailContentProps) {
   const presentation = useRunNodeDetailPresentation({ run, nodeId, workflowNodes, executions });
   const { activeTab, selectTab } = useRunNodeDetailTabs(nodeId, presentation.tabAvailability);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
 
   useRunNodeDetailEscape(onClose);
 
-  return (
-    <div
-      className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white"
-      data-testid={testId}
-      aria-label={`${presentation.nodeName} run details`}
-    >
-      <RunNodeDetailHeader
-        nodeName={presentation.nodeName}
-        workflowNode={presentation.workflowNode}
-        componentIconMap={componentIconMap}
-        previousNodeId={presentation.previousNodeId}
-        nextNodeId={presentation.nextNodeId}
-        onClose={onClose}
-        onNavigateNode={onNavigateNode}
-      />
+  useRunNodeDetailKeyboardShortcuts({
+    onClose,
+    onNextNode: () => presentation.nextNodeId && onNavigateNode?.(presentation.nextNodeId),
+    onPreviousNode: () => presentation.previousNodeId && onNavigateNode?.(presentation.previousNodeId),
+    onShowHelp: () => setShowHelpDialog(true),
+  });
 
-      {isExecutionsLoading && !presentation.isTriggerNode ? (
-        <div className="flex items-center justify-center gap-2 px-4 py-8 text-xs text-gray-400">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading run details...
-        </div>
-      ) : presentation.hasAnyTab ? (
-        <RunNodeDetailTabSection
-          activeTab={activeTab}
-          tabData={presentation.tabData}
-          hasDetailsSection={presentation.hasDetailsSection}
-          hasPayload={presentation.hasPayload}
-          hasConfig={presentation.hasConfig}
-          headerEventBadge={presentation.headerEventBadge}
-          createdAt={presentation.createdAt}
-          onSelectTab={selectTab}
+  return (
+    <>
+      <div
+        className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white"
+        data-testid={testId}
+        aria-label={`${presentation.nodeName} run details`}
+      >
+        <RunNodeDetailHeader
+          nodeName={presentation.nodeName}
+          workflowNode={presentation.workflowNode}
+          componentIconMap={componentIconMap}
+          previousNodeId={presentation.previousNodeId}
+          nextNodeId={presentation.nextNodeId}
+          onClose={onClose}
+          onNavigateNode={onNavigateNode}
+          onShowHelp={() => setShowHelpDialog(true)}
         />
-      ) : (
-        <div className="px-4 py-6 text-center text-xs text-gray-400">No execution data for this node in this run.</div>
-      )}
-    </div>
+
+        {isExecutionsLoading && !presentation.isTriggerNode ? (
+          <div className="flex items-center justify-center gap-2 px-4 py-8 text-xs text-gray-400">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading run details...
+          </div>
+        ) : presentation.hasAnyTab ? (
+          <RunNodeDetailTabSection
+            activeTab={activeTab}
+            tabData={presentation.tabData}
+            hasDetailsSection={presentation.hasDetailsSection}
+            hasPayload={presentation.hasPayload}
+            hasConfig={presentation.hasConfig}
+            headerEventBadge={presentation.headerEventBadge}
+            createdAt={presentation.createdAt}
+            onSelectTab={selectTab}
+          />
+        ) : (
+          <div className="px-4 py-6 text-center text-xs text-gray-400">No execution data for this node in this run.</div>
+        )}
+      </div>
+      <RunNodeDetailKeyboardHelpDialog isOpen={showHelpDialog} onClose={() => setShowHelpDialog(false)} />
+    </>
   );
 }
