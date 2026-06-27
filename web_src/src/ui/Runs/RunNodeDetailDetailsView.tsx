@@ -1,18 +1,36 @@
 import { TimeAgo } from "@/components/TimeAgo";
 import { cn, isUrl } from "@/lib/utils";
 import { isErrorValue } from "./runNodeDetailModel";
+import { getStatusPresentation, type RunStatus } from "./runStatusPresentation";
+import React from "react";
 
 /** Matches {@link EventSectionDisplay} status chip on canvas nodes (style + casing). */
-function EventSectionStatusBadge({ badgeColor, label }: { badgeColor: string; label: string }) {
+function EventSectionStatusBadge({
+  badgeColor,
+  label,
+  status,
+}: {
+  badgeColor: string;
+  label: string;
+  status?: RunStatus;
+}) {
+  const presentation = status ? getStatusPresentation(status) : null;
+  const IconComponent = presentation?.icon;
+
   return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded px-[5px] py-[1.5px] text-[10px] font-semibold uppercase tracking-wide text-white",
-        badgeColor,
-      )}
-    >
-      {label}
-    </span>
+    <div className="flex items-center gap-1.5">
+      {IconComponent ? (
+        <IconComponent className={cn("h-4 w-4 shrink-0", presentation.iconColorClass)} />
+      ) : null}
+      <span
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded px-[5px] py-[1.5px] text-[10px] font-semibold uppercase tracking-wide text-white",
+          badgeColor,
+        )}
+      >
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -22,7 +40,7 @@ export function RunNodeDetailDetailsView({
   relativeTime,
 }: {
   details: Record<string, unknown>;
-  statusBadge?: { badgeColor: string; label: string } | null;
+  statusBadge?: { badgeColor: string; label: string; status?: RunStatus } | null;
   relativeTime?: string;
 }) {
   return (
@@ -30,7 +48,11 @@ export function RunNodeDetailDetailsView({
       {statusBadge ? (
         <div className="flex items-start gap-2">
           <span className="w-[120px] shrink-0 truncate text-right text-gray-500">Status:</span>
-          <EventSectionStatusBadge badgeColor={statusBadge.badgeColor} label={statusBadge.label} />
+          <EventSectionStatusBadge
+            badgeColor={statusBadge.badgeColor}
+            label={statusBadge.label}
+            status={statusBadge.status}
+          />
         </div>
       ) : null}
       {relativeTime ? (

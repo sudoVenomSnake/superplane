@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, HelpCircle, X } from "lucide-react";
 import type { SuperplaneComponentsNode as ComponentsNode } from "@/api-client";
 import { Button } from "@/components/ui/button";
 import { RunNodeIcon, RUN_NODE_ICON_SIZE } from "./RunNodeIcon";
@@ -11,6 +11,7 @@ export interface RunNodeDetailHeaderProps {
   nextNodeId: string | null;
   onClose: () => void;
   onNavigateNode?: (nodeId: string) => void;
+  onShowHelp?: () => void;
 }
 
 export function RunNodeDetailHeader({
@@ -21,7 +22,15 @@ export function RunNodeDetailHeader({
   nextNodeId,
   onClose,
   onNavigateNode,
+  onShowHelp,
 }: RunNodeDetailHeaderProps) {
+  const handleCopyUrl = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      console.log("Run URL copied to clipboard");
+    });
+  };
+
   return (
     <div className="flex h-9 shrink-0 items-stretch justify-between border-b border-slate-200 pl-3">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -45,8 +54,9 @@ export function RunNodeDetailHeader({
               size="sm"
               className="h-6 w-6 p-0"
               disabled={!previousNodeId}
-              aria-label="Previous node in run"
+              aria-label="Previous node in run (k)"
               onClick={() => previousNodeId && onNavigateNode(previousNodeId)}
+              title="Previous node (k)"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
@@ -56,13 +66,41 @@ export function RunNodeDetailHeader({
               size="sm"
               className="h-6 w-6 p-0"
               disabled={!nextNodeId}
-              aria-label="Next node in run"
+              aria-label="Next node in run (j)"
               onClick={() => nextNodeId && onNavigateNode(nextNodeId)}
+              title="Next node (j)"
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         ) : null}
+        <div aria-hidden className="w-px self-stretch bg-slate-200" />
+        <div className="flex items-center px-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={handleCopyUrl}
+            aria-label="Copy run URL"
+            title="Copy run URL to clipboard"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
+          {onShowHelp ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={onShowHelp}
+              aria-label="Show keyboard shortcuts (?)"
+              title="Keyboard shortcuts (?)"
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
+            </Button>
+          ) : null}
+        </div>
         <div aria-hidden className="w-px self-stretch bg-slate-200" />
         <div className="flex items-center px-1">
           <Button type="button" variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onClose}>
