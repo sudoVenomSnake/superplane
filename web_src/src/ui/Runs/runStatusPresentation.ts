@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertCircle, SkipCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, StopCircle } from "lucide-react";
 
 export type RunStatus = "success" | "error" | "failed" | "skipped" | "running" | "pending" | "unknown";
 
@@ -33,7 +33,7 @@ export const STATUS_PRESENTATIONS: Record<RunStatus, StatusPresentation> = {
     iconColorClass: "text-red-600",
   },
   skipped: {
-    icon: SkipCircle,
+    icon: StopCircle,
     label: "Skipped",
     colorClass: "text-gray-600",
     bgColorClass: "bg-gray-50",

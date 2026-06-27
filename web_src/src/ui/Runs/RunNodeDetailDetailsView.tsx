@@ -2,7 +2,6 @@ import { TimeAgo } from "@/components/TimeAgo";
 import { cn, isUrl } from "@/lib/utils";
 import { isErrorValue } from "./runNodeDetailModel";
 import { getStatusPresentation, type RunStatus } from "./runStatusPresentation";
-import React from "react";
 
 /** Matches {@link EventSectionDisplay} status chip on canvas nodes (style + casing). */
 function EventSectionStatusBadge({
